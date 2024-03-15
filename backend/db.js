@@ -8,4 +8,4 @@ const PasswordSchema = z
   .min(6, { message: 'Password must be at least 6 characters long' })
   .max(10, { message: 'Password must be at most 10 characters long' });
 
-module.exports = {PasswordSchema};
+module.exports = PasswordSchema;

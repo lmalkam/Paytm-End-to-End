@@ -32,12 +32,12 @@ app.get('/signup', async function (req, res) {
     const { name, password } = req.body;
 
     console.log(req.body);
-    // try {
-    //     PasswordSchema.parse(password)
-    // }
-    // catch (error) {
-    //     return res.status(411).json(error.msg)
-    // }
+    try {
+        PasswordSchema.parse(password)
+    }
+    catch (error) {
+        return res.status(411).json(error.msg)
+    }
 
     if ((await UserExists(name, password))) {
         return res.status(403).json({
@@ -114,14 +114,14 @@ app.put("/update", AuthMiddleware, async (req, res) => {
         const { NewPassword } = req.body;
 
         try {
-            // PasswordSchema.parse(NewPassword);
+            PasswordSchema.parse(NewPassword);
 
             const user = await User.findOne({ name: name });
 
             if (user) {
                 user.password = NewPassword;
                 await user.save();
-                return res.status(200);
+                return res.status(200).json({msg:"Sucess"});
             }
             else {
                 return res.status(403);
