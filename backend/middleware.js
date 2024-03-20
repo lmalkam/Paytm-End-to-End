@@ -1,30 +1,28 @@
-const jwt = require('jsonwebtoken')
-const jwtPassword = "123456";
+const { JWT_SECRET } = require("./config");
+const jwt = require("jsonwebtoken");
 
+const authMiddleware = (req, res, next) => {
+    const authHeader = req.headers.authorization;
 
-const AuthMiddleware = (req,res,next) =>{
-
-    const token = req.headers.authorization;
-
-    console.log(token);
-
-    if(!token)
-    {
-        return res.status(403).json({msg : "fUnauthorized"});
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(403).json({});
     }
 
-    try{
-        const decoded = jwt.verify(token,jwtPassword);
-        req.userid = decoded.name ;
+    console.log(authHeader);
+
+    const token = authHeader.split(' ')[1];
+
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET);
+
+        req.userId = decoded.userId;
+
         next();
+    } catch (err) {
+        return res.status(403).json("too much");
     }
-    catch(err)
-    {
-        return res.status(403).json({
-            msg:"Invalid Token in auth",
-        });
-    }
-
 };
 
-module.exports = AuthMiddleware;
+module.exports = {
+    authMiddleware
+}
