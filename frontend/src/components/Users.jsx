@@ -1,56 +1,59 @@
-import React, { useState } from 'react';
+import axios from "axios";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom"
 
-export function Users() {
-    const [searchTerm, setSearchTerm] = useState('');
+import { Button } from "./Button";
 
-    const handleSearchChange = (event) => {
-        setSearchTerm(event.target.value);
-    };
+export function Users(){
 
-    const users = [
-        { id: 1, name: 'Linesh Malkam' },
-        { id: 2, name: 'Rithika' },
-        { id: 3, name: 'Tejas Makode' },
-        { id: 4, name: 'Pranav Ghante' },
-        { id: 5, name: 'Shubham Rai' },
-        { id: 6, name: 'Aashish Rampal' },
-        // Add more users as needed
-    ];
+    const [users , setUsers] = useState([]);
+    const [filter,setFilter] = useState("");
 
-    const filteredUsers = users.filter((user) =>
-        user.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    useEffect(()=>{
+        axios.get("http://localhost:3000/api/v1/user/bulk?filter=" + filter)
+            .then(response => {
+                setUsers(response.data.user)
+            })
+    }, [filter])
 
-    return (
-        <div className="margin mx-3 my-7 text-3xl font-bold">
-            <div>Users</div>
-            <div className="mt-4">
-                <input
-                    type="text"
-                    placeholder="Search users..."
-                    value={searchTerm}
-                    onChange={handleSearchChange}
-                    className="p-4 border border-gray-300 rounded w-full"
-                />
+
+    return <div>
+        <div className="font-bold mt-6 text-lg">
+            Users
+        </div>
+        <div className="my-2">
+            <input onChange={(e) => {
+                setFilter(e.target.value)
+            }} type="text" placeholder="Search users..." className="w-full px-2 py-1 border rounded border-slate-200"></input>
+        </div>
+        <div>
+            {users.map(user => <User user={user} />)}
+        </div>
+    </div>
+}
+
+function User({user}){
+    const navigate = useNavigate();
+
+
+    return <div className="flex justify-between">
+        <div className="flex">
+            <div className="rounded-full h-12 w-12 bg-slate-200 flex justify-center mt-1 mr-2">
+                <div className="flex flex-col justify-center h-full text-xl">
+                    {user.firstName[0]}
+                </div>
             </div>
-
-            <div>
-                <ul className="mt-3">
-                    {filteredUsers.map((user) => (
-                        <li key={user.id} className="p-3 mb-2 border border-gray-300 flex items-center justify-between">
-                            <span className="flex items-center">
-                                {/* <img
-                                    //  src={user.image} // Add the correct image source
-                                    // alt={`${user.name}'s avatar`}
-                                    className="w-8 h-8 rounded-full mr-3"
-                                /> */}
-                                {user.name}
-                            </span>
-                            <button className="bg-blue-500 text-white px-4 py-2 rounded">Pay Money</button>
-                        </li>
-                    ))}
-                </ul>
+            <div className="flex flex-col justify-center h-full">
+                <div>
+                    {user.firstName} {user.lastName}
+                </div>
             </div>
         </div>
-    );
+
+        <div className="flex flex-col justify-center h-full">
+            <Button onClick={(e)=>{
+                navigate("/send?id=" + user._id + "&name=" + user.firstName);
+            }} label={"Send Money"}/>
+        </div>
+    </div>
 }
